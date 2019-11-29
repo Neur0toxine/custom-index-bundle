@@ -34,8 +34,8 @@ class CustomIndex
     /**
      * validation
      *
-     * @param ClassMetadata
-     **/
+     * @param \Symfony\Component\Validator\Mapping\ClassMetadata $metadata
+     */
     public static function loadValidatorMetadata(ClassMetadata $metadata)
     {
         $metadata->addPropertyConstraint('tableName', new Assert\NotBlank());
@@ -74,7 +74,8 @@ class CustomIndex
      * @param Connection $con
      *
      * @return bool
-     **/
+     * @throws \Doctrine\DBAL\DBALException
+     */
     public static function drop(Connection $con, $indexId)
     {
         $platform = $con->getDatabasePlatform()
@@ -111,7 +112,9 @@ class CustomIndex
      * Get default schema name and store it in static property
      *
      * @param Connection $con
+     *
      * @return string
+     * @throws \Doctrine\DBAL\DBALException
      */
     public static function getCurrentSchema(Connection $con)
     {
@@ -239,7 +242,8 @@ class CustomIndex
      * @param Connection $con
      *
      * @return bool
-     **/
+     * @throws \Doctrine\DBAL\DBALException
+     */
     public function create(Connection $con)
     {
         $platform = $con->getDatabasePlatform()
@@ -322,11 +326,13 @@ class CustomIndex
 
     public function getTableName()
     {
+        $schema = $this->getSchema();
+
         if (
-            !empty($this->getSchema())
-            && $this->getSchema() != self::$currentSchema
+            !empty($schema)
+            && $schema != self::$currentSchema
         ) {
-            return $this->getSchema() . '.' . $this->tableName;
+            return $schema . '.' . $this->tableName;
         } else {
             return $this->tableName;
         }
